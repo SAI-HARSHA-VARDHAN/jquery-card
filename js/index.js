@@ -75,8 +75,17 @@ function fetchRatings(){
         data: {},
         success: function (data) {
             const object = data
-            const len = object.results.length
-            const results_object = object.results
+            const current_url = location.href
+            // const current_url = "https://blog.scrapshut.com/?p=198"
+            var results = []
+            for(let i=0;i<object.results.length;i++){
+              if(object.results[i].url == current_url){
+                  results.push(object.results[i])
+              }
+            }
+            console.log(results)
+            const len = results.length
+            const results_object = results
             var avgrating = 0
             var cnt = 0
             for(let i=0;i<results_object.length;i++){
@@ -97,8 +106,13 @@ function fetchRatings(){
             for(let j=0;j<remain;j++){
                 html += `<span class='star remain'>&#9734;</span>`
             }
-            html += `<span class='rate'> ${avgrating.toFixed(1)} out of 5</span>`+
-            `<br/>${cnt} ratings<br/>`
+            if(results.length != 0){
+                html += `<span class='rate'> ${avgrating.toFixed(1)} out of 5</span>`
+            }
+            if(results.length != 0)
+            html += `<br/>${cnt} ratings<br/>`
+            else
+            html += `${cnt} ratings<br/><br/>`
             if(localStorage.access_token)
             html += `<button class="btn-primary ratethis" onclick="openratepopup()">Rate this</button></div>`
             else
@@ -145,7 +159,10 @@ function fetchRatings(){
     </form>
             </div>
           </div>`
+            if(results.length != 0)
             html +=`</div><br/><div class='container review' onclick="showhide()"><b>REVIEWS &#8595;</b></div><br/><div id="cardgroup">`
+            else
+            html +=`</div><br/><div class='container review'><b>Be the first person to review</b></div><br/><div id="cardgroup">`
             for(let i=0;i<results_object.length;i++){
                 html += `<div class="card" style="width:45vw;"><div class='card-header'><div class="row"><div class="col"><b>${results_object[i].author}</b></div> <div class="col" align="right">${results_object[i].rate}⭐️</div></div></div>`+
                 `<div class='card-body'>${results_object[i].review}</div></div>`
@@ -153,7 +170,6 @@ function fetchRatings(){
             html += `</div>`
             $("#result").html(html)
             $("#cardgroup").hide()
-            
         },
         error: function(data)
         {
@@ -267,7 +283,7 @@ function updatean() {
 function post(){
     var url = location.href;
     var tags = $("#inputAddress2").val().split(",");
-    var review = $("inputEmail4").val()
+    var review = $("#inputEmail4").val()
     data = {review:review,url:url,tags:tags,rate:rate,anonymous:anonymous,fake:fake,advertisement:{url:null,title:null,advertizing_content:null}};
     data = JSON.stringify(data)
     console.log(data)
