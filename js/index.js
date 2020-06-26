@@ -2,23 +2,43 @@
   var newscript = document.createElement('script');
   var newscript1 = document.createElement('script');
   var newscript2 = document.createElement('script');
+  var newscript3 = document.createElement('script');
+  var newscript4 = document.createElement('script');
   var link = document.createElement("link");
+  var link1 = document.createElement("link");
+  var link2 = document.createElement("link");
      newscript.type = 'text/javascript';
      newscript1.type = 'text/javascript';
      newscript2.type = 'text/javascript';
+     newscript3.type = 'text/javascript';
+     newscript4.type = 'text/javascript';
      newscript.async = true;
      newscript1.async = true;
      newscript2.async = true;
+     newscript3.async = true;
+     newscript4.defer = true;
      newscript.src = 'https://code.jquery.com/jquery-3.5.1.min.js';
      newscript1.src = 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js';
-     newscript2.src = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';
+     newscript2.src = 'https://apis.google.com/js/api.js';
+     newscript3.src = 'https://www.gstatic.com/firebasejs/7.15.1/firebase-app.js';
+     newscript4.src = 'https://www.gstatic.com/firebasejs/7.15.0/firebase-auth.js';
     link.type = "text/css";
     link.rel = "stylesheet";
+    link1.type = "text/css";
+    link1.rel = "stylesheet";
+    link2.type = "text/css";
+    link2.rel = "stylesheet";
     link.href = 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css';
+    link1.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';
+    link2.href = 'https://cardscrapshut.s3.ap-south-1.amazonaws.com/index.css';
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript);
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript1);
-  (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript2);
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(link);
+  (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(link1);
+  (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(link2);
+  (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript2);
+  (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript3);
+  (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript4);
 })();
   
 function fetch(){
@@ -48,8 +68,8 @@ function fetch(){
 }
 
 function checkIfCompanyValid(){
-    // const current_url = location.href
-    const current_url = "https://social.scrapshut.com"
+    const current_url = location.href
+    // const current_url = "https://social.scrapshut.com"
     const domain_name = current_url.split("//")[1].split("/")[0]
     const domain_parts = domain_name.split("\.")
     console.log(domain_parts)
@@ -190,65 +210,6 @@ function openratepopup(){
     // $("#result").append(html);
     $("#mod").click();
 }
-
-// `<form id="formId">
-//       <div class="form-row">
-//         <div class="form-group col-4">
-//           <p class="label">Review</p>
-//         </div>
-//         <div class="form-group col-8">
-//           <input name="review" type="text" class="form-control" id="inputEmail4" placeholder="Title" required>
-//         </div>
-//       </div>
-//       <div class="form-row">
-//         <div class="form-group col-4">
-//           <p class="label">Tags</p>
-//         </div>
-//         <div class="form-group col-8">
-//           <input name="tags" type="text" class="form-control" id="inputAddress2" placeholder="Comma seperated tags"
-//             class="label" required>
-//         </div>
-//       </div>
-//       <div class="form-row">
-//         <div class="form-group col-4">
-//           <p class="label">Rate</p>
-//         </div>
-//         <div class="form-group col-8">
-//           <!-- <label for="inputZip">Rate</label> -->
-//           <!-- <input name="rate" type="number" class="form-control" id="inputZip"> -->
-//           <fieldset class="rating" style="margin-top: -10px;">
-//             <input type="radio" id="star5" name="rating" value="5" onclick="updaterate(5)" /><label class="full"
-//               for="star5" title="5 stars"></label>
-//             <!-- <input type="radio" id="star4half" name="rating" value="4 and a half" /><label class="half" for="star4half" title="Pretty good - 4.5 stars"></label> -->
-//             <input type="radio" id="star4" name="rating" value="4" onclick="updaterate(4)" /><label class="full"
-//               for="star4" title="4 stars"></label>
-//             <!-- <input type="radio" id="star3half" name="rating" value="3 and a half" /><label class="half" for="star3half" title="Meh - 3.5 stars"></label> -->
-//             <input type="radio" id="star3" name="rating" value="3" onclick="updaterate(3)" /><label class="full"
-//               for="star3" title="3 stars"></label>
-//             <!-- <input type="radio" id="star2half" name="rating" value="2 and a half" /><label class="half" for="star2half" title="Kinda bad - 2.5 stars"></label> -->
-//             <input type="radio" id="star2" name="rating" value="2" onclick="updaterate(2)" /><label class="full"
-//               for="star2" title="2 stars"></label>
-//             <!-- <input type="radio" id="star1half" name="rating" value="1 and a half" /><label class="half" for="star1half" title="Meh - 1.5 stars"></label> -->
-//             <input type="radio" id="star1" name="rating" value="1" onclick="updaterate(1)" /><label class="full"
-//               for="star1" title="1 star"></label>
-//             <!-- <input type="radio" id="starhalf" name="rating" value="half" /><label class="half" for="starhalf" title="Sucks big time - 0.5 stars"></label> -->
-//         </div>
-//       </div>
-//       <div class="form-group">
-//         <div class="form-check col-12" style="text-align: left;">
-//           <input name="anonymous" class="form-check-input" type="checkbox" id="gridCheck1" onclick="updatean()">
-//           <label class="form-check-label" for="gridCheck">
-//             Anonymous
-//           </label>
-//         </div>
-//         <div class="form-check col-12" style="text-align: left;">
-//           <input name="fake" class="form-check-input" type="checkbox" id="gridCheck2" onclick="updatefk()">
-//           <label class="form-check-label" for="gridCheck">
-//             Might be Fake
-//           </label>
-//         </div>
-//       </div>
-//     </form>`
 
 function updaterate(a) {
     rate = a;
