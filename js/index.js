@@ -4,6 +4,7 @@
   var newscript2 = document.createElement('script');
   var newscript3 = document.createElement('script');
   var newscript4 = document.createElement('script');
+  var newscript5 = document.createElement('script');
   var link = document.createElement("link");
   var link1 = document.createElement("link");
   var link2 = document.createElement("link");
@@ -12,16 +13,19 @@
      newscript2.type = 'text/javascript';
      newscript3.type = 'text/javascript';
      newscript4.type = 'text/javascript';
+     newscript5.type = 'text/javascript';
      newscript.async = true;
      newscript1.async = true;
      newscript2.async = true;
      newscript3.async = true;
      newscript4.defer = true;
+     newscript5.defer = true;
      newscript.src = 'https://code.jquery.com/jquery-3.5.1.min.js';
      newscript1.src = 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js';
      newscript2.src = 'https://apis.google.com/js/api.js';
      newscript3.src = 'https://www.gstatic.com/firebasejs/7.15.1/firebase-app.js';
      newscript4.src = 'https://www.gstatic.com/firebasejs/7.15.0/firebase-auth.js';
+     newscript4.src = 'http://www.geoplugin.net/javascript.gp';
     link.type = "text/css";
     link.rel = "stylesheet";
     link1.type = "text/css";
@@ -39,10 +43,22 @@
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript2);
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript3);
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript4);
+  (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript5);
 })();
   
+window.onload = function(){
+  var scriptName = document.getElementById('scriptone');
+  localStorage.apikey = scriptName.getAttribute('apikey');
+  $.getJSON("https://api.ipify.org?format=jsonp&callback=?",
+      function(json) {
+        localStorage.userIpScrapplug = json.ip
+        console.log(localStorage.userIpScrapplug)
+      }
+  );
+  fetch();
+}
+
 function fetch(){
-    // alert(window.name)
     if(window.name != "")
     localStorage.access_token = window.name
     const companyViewUrl = "https://backend.scrapshut.com/company/view"
@@ -58,6 +74,9 @@ function fetch(){
             const company_name = data.results[0].company_name
             localStorage.company_name = company_name
             console.log("Company name stored is "+localStorage.company_name)
+            console.log(data.results[0])
+            updateIp(data.results[0])
+            addToUrls(data.results[0])
             checkIfCompanyValid()
         },
         error: function(data)
@@ -69,10 +88,9 @@ function fetch(){
 
 function checkIfCompanyValid(){
     const current_url = location.href
-    // const current_url = "https://social.scrapshut.com"
+    // const current_url = "https://scrapshut.com"
     const domain_name = current_url.split("//")[1].split("/")[0]
     const domain_parts = domain_name.split("\.")
-    console.log(domain_parts)
     if(domain_parts.includes(localStorage.company_name)){
         console.log("Matched")
         fetchRatings()
@@ -200,14 +218,12 @@ function fetchRatings(){
 
 function openpopup(){
     popup = window.open("https://cardforhosting.web.app/", location.href, "width=500,height=400");
-    popup.moveTo(0,0);
     popup.focus();
 }
 
 var rate=0,anonymous=false,fake=false;
 
 function openratepopup(){
-    // $("#result").append(html);
     $("#mod").click();
 }
 
@@ -242,9 +258,9 @@ function updatean() {
 }
 
 function post(){
-    var url = location.href;
-    var tags = $("#inputAddress2").val().split(",");
-    var review = $("#inputEmail4").val()
+    const url = location.href
+    const tags = $("#inputAddress2").val().split(",")
+    const review = $("#inputEmail4").val()
     data = {review:review,url:url,tags:tags,rate:rate,anonymous:anonymous,fake:fake,advertisement:{url:null,title:null,advertizing_content:null}};
     data = JSON.stringify(data)
     console.log(data)
@@ -284,6 +300,101 @@ function post(){
             $("#close").click()
         }
     });
+}
+
+//Add to URL field of company if not included already
+function addToUrls(result){
+  var finalArray = result.url.split('\"')[0].split("[")[1].split("]")[0].replace(/'/gi,"").split(",")
+  if(finalArray.includes(location.href)){
+    console.log('URL Already Included')
+  }
+  else{
+    finalArray.push(location.href)
+    result.url = `[${finalArray}]`
+    console.log("Added to URLs")
+    $.ajax({
+        type: "PUT",
+        contentType: 'application/json',
+        url: 'https://backend.scrapshut.com/company/register/'+result.id+'/',
+        data: JSON.stringify(result),
+        success: function (data) {
+            console.log(data)
+        },
+        error: function(data)
+        {
+            console.log(data)
+        }
+    }); 
+  } 
+}
+
+function getBrowserName(){
+  var browserName;
+   if((navigator.userAgent.indexOf("Opera") || navigator.userAgent.indexOf('OPR')) != -1 ) 
+    {
+        browserName = 'Opera';
+    }
+    else if(navigator.userAgent.indexOf("Chrome") != -1 )
+    {
+        browserName = 'Chrome';
+    }
+    else if(navigator.userAgent.indexOf("Safari") != -1)
+    {
+        browserName = 'Safari';
+    }
+    else if(navigator.userAgent.indexOf("Firefox") != -1 ) 
+    {
+         browserName = 'Firefox';
+    }
+    else if((navigator.userAgent.indexOf("MSIE") != -1 ) || (!!document.documentMode == true )) //IF IE > 10
+    {
+      browserName = 'IE'; 
+    }  
+    else 
+    {
+       browserName = 'Others';
+    }
+    return browserName
+}
+
+function getCountryName() {
+  return geoplugin_countryName()
+}
+
+function updateIp(result){
+  const browserName = getBrowserName()
+  const ipAddressVal = localStorage.userIpScrapplug
+  const countryName = getCountryName()
+  const url = location.href
+  const ipadress = JSON.stringify({ipaddress:ipAddressVal,country:countryName,broswer:browserName,url:url})
+  var ipArray = JSON.parse(result.ipadress) 
+  var f = 1
+  ipArray.forEach(element => {
+    if(element === ipadress){
+      f = 0
+    }
+  });
+  console.log(f)
+  if(f == 1){
+    ipArray.push(ipadress)
+    result.ipadress = JSON.stringify(ipArray)
+    $.ajax({
+          type: "PUT",
+          contentType: 'application/json',
+          url: 'https://backend.scrapshut.com/company/register/'+result.id+'/',
+          data: JSON.stringify(result),
+          success: function (data) {
+              console.log(data)
+          },
+          error: function(data)
+          {
+              console.log(data)
+          }
+    }); 
+  }
+  else{
+    console.log("Already IP Added")
+  }
 }
 
 function showhide(){
