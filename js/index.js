@@ -4,7 +4,6 @@
   var newscript2 = document.createElement('script');
   var newscript3 = document.createElement('script');
   var newscript4 = document.createElement('script');
-  var newscript5 = document.createElement('script');
   var link = document.createElement("link");
   var link1 = document.createElement("link");
   var link2 = document.createElement("link");
@@ -13,19 +12,16 @@
      newscript2.type = 'text/javascript';
      newscript3.type = 'text/javascript';
      newscript4.type = 'text/javascript';
-     newscript5.type = 'text/javascript';
      newscript.async = true;
      newscript1.async = true;
      newscript2.async = true;
      newscript3.async = true;
      newscript4.defer = true;
-     newscript5.defer = true;
      newscript.src = 'https://code.jquery.com/jquery-3.5.1.min.js';
      newscript1.src = 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js';
      newscript2.src = 'https://apis.google.com/js/api.js';
      newscript3.src = 'https://www.gstatic.com/firebasejs/7.15.1/firebase-app.js';
      newscript4.src = 'https://www.gstatic.com/firebasejs/7.15.0/firebase-auth.js';
-     newscript4.src = 'http://www.geoplugin.net/javascript.gp';
     link.type = "text/css";
     link.rel = "stylesheet";
     link1.type = "text/css";
@@ -43,18 +39,17 @@
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript2);
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript3);
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript4);
-  (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript5);
 })();
   
 window.onload = function(){
   var scriptName = document.getElementById('scriptone');
   localStorage.apikey = scriptName.getAttribute('apikey');
-  $.getJSON("https://api.ipify.org?format=jsonp&callback=?",
-      function(json) {
-        localStorage.userIpScrapplug = json.ip
-        console.log(localStorage.userIpScrapplug)
-      }
-  );
+  // $.getJSON("https://api.ipify.org?format=jsonp&callback=?",
+  //     function(json) {
+  //       localStorage.userIpScrapplug = json.ip
+  //       console.log(localStorage.userIpScrapplug)
+  //     }
+  // );
   fetch();
 }
 
@@ -75,9 +70,9 @@ function fetch(){
             localStorage.company_name = company_name
             console.log("Company name stored is "+localStorage.company_name)
             console.log(data.results[0])
-            updateIp(data.results[0])
-            addToUrls(data.results[0])
             checkIfCompanyValid()
+            // updateIp(data.results[0])
+            // addToUrls(data.results[0])
         },
         error: function(data)
         {
@@ -88,16 +83,16 @@ function fetch(){
 
 function checkIfCompanyValid(){
     const current_url = location.href
-    // const current_url = "https://scrapshut.com"
+    // const current_url = "https://scrApshut.iIit.com"
     const domain_name = current_url.split("//")[1].split("/")[0]
-    const domain_parts = domain_name.split("\.")
+    const domain_parts = domain_name.split("\.").map(function(x) { return x.toLowerCase(); });
+    const company_name = localStorage.company_name.toLowerCase()
     if(domain_parts.includes(localStorage.company_name)){
         console.log("Matched")
         fetchRatings()
     }
     else{
         console.log("Domain Doesn't match")
-
     }
 }
 
@@ -114,7 +109,7 @@ function fetchRatings(){
         success: function (data) {
             const object = data
             const current_url = location.href
-            // const current_url = "https://blog.scrapshut.com/?p=198"
+            // const current_url = "https://blog.iiit.com/?p=198"
             var results = []
             for(let i=0;i<object.results.length;i++){
               if(object.results[i].url == current_url){
@@ -357,16 +352,14 @@ function getBrowserName(){
     return browserName
 }
 
-function getCountryName() {
-  return geoplugin_countryName()
-}
-
 function updateIp(result){
   const browserName = getBrowserName()
   const ipAddressVal = localStorage.userIpScrapplug
-  const countryName = getCountryName()
   const url = location.href
-  const ipadress = JSON.stringify({ipaddress:ipAddressVal,country:countryName,broswer:browserName,url:url})
+  const ipadress = JSON.stringify({ipaddress:ipAddressVal,broswer:browserName,url:url})
+  if(result.ipadress == ""){
+    result.ipadress = JSON.stringify([]);
+  }
   var ipArray = JSON.parse(result.ipadress) 
   var f = 1
   ipArray.forEach(element => {
