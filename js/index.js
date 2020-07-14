@@ -44,6 +44,7 @@
 window.onload = function(){
   var scriptName = document.getElementById('scriptone');
   localStorage.apikey = scriptName.getAttribute('apikey');
+  localStorage.companyid = scriptName.getAttribute('companyid');
   // $.getJSON("https://api.ipify.org?format=jsonp&callback=?",
   //     function(json) {
   //       localStorage.userIpScrapplug = json.ip
@@ -56,7 +57,7 @@ window.onload = function(){
 function fetch(){
     if(window.name != "")
     localStorage.access_token = window.name
-    const companyViewUrl = "https://backend.scrapshut.com/company/view"
+    const companyViewUrl = "https://backend.scrapshut.com/company/view/"+localStorage.companyid
     $.ajax({
         type: "GET",
         headers : {
@@ -66,11 +67,11 @@ function fetch(){
         url: companyViewUrl,
         data: {},
         success: function (data) {
-            const company_name = data.results[0].company_name
+            const company_name = data.results[0].name
             localStorage.company_name = company_name
             console.log("Company name stored is "+localStorage.company_name)
             console.log(data.results[0])
-            checkIfCompanyValid()
+            fetchRatings()
             // updateIp(data.results[0])
             // addToUrls(data.results[0])
         },
@@ -81,23 +82,23 @@ function fetch(){
     });  
 }
 
-function checkIfCompanyValid(){
-    const current_url = location.href
-    // const current_url = "https://scrApshut.iIit.com"
-    const domain_name = current_url.split("//")[1].split("/")[0]
-    const domain_parts = domain_name.split("\.").map(function(x) { return x.toLowerCase(); });
-    const company_name = localStorage.company_name.toLowerCase()
-    if(domain_parts.includes(localStorage.company_name)){
-        console.log("Matched")
-        fetchRatings()
-    }
-    else{
-        console.log("Domain Doesn't match")
-    }
-}
+// function checkIfCompanyValid(){
+    // const current_url = location.href
+    // const current_url = "https://cIe.iiit.ac.in/strategy-for-engaging-customers-in-times-like-covid-in-conversation-with-ashok-founder-grabon/"
+    // const domain_name = current_url.split("//")[1].split("/")[0]
+    // const domain_parts = domain_name.split("\.").map(function(x) { return x.toLowerCase(); });
+    // const company_name = localStorage.company_name.toLowerCase()
+    // if(domain_parts.includes(company_name)){
+        // console.log("Matched")
+        // fetchRatings()
+    // }
+    // else{
+        // console.log("Domain Doesn't match")
+    // }
+// }
 
 function fetchRatings(){
-    const ratingsUrl = "https://backend.scrapshut.com/company/post/?search="+localStorage.company_name
+    const ratingsUrl = "https://backend.scrapshut.com/company/post/?search="+localStorage.company_name.split(" ")[0]
     $.ajax({
         type: "GET",
         headers : {
@@ -108,22 +109,18 @@ function fetchRatings(){
         data: {},
         success: function (data) {
             const object = data
-            const current_url = location.href
+            // const current_url = location.href
             // const current_url = "https://blog.iiit.com/?p=198"
-            var results = []
-            for(let i=0;i<object.results.length;i++){
-              if(object.results[i].url == current_url){
-                  results.push(object.results[i])
-              }
-            }
-            console.log(results)
+            console.log(object)
+            var results = object.results
+            // console.log(results)
             const len = results.length
             const results_object = results
             var avgrating = 0
             var cnt = 0
             for(let i=0;i<results_object.length;i++){
                 avgrating += results_object[i].rate
-                console.log(results_object[i])
+                // console.log(results_object[i])
                 cnt += 1
             }
             avgrating = avgrating/cnt
