@@ -65,6 +65,7 @@ function fetch(){
         },
         contentType: 'application/json',
         url: companyViewUrl,
+        timeout:5000,
         data: {},
         success: function (data) {
             const company_name = data.results[0].name
@@ -75,9 +76,13 @@ function fetch(){
             // updateIp(data.results[0])
             // addToUrls(data.results[0])
         },
-        error: function(data)
+        error: function(xhr,textStatus)
         {
-            console.log(data)
+            console.log(xhr)
+            console.log(textStatus)
+            if(textStatus==="timeout" || xhr.status == 408 || xhr.status == 0) {
+                fetch();
+            } 
         }
     });  
 }
@@ -97,6 +102,64 @@ function fetch(){
     // }
 // }
 
+var presentCount = 5;
+var results;
+var contentReviews;
+
+function loadMore(){
+  const futureCount = presentCount + 5;
+  if(results.length > futureCount){
+    presentCount += 5;
+    var html = ``;
+    results_object = results;
+    for(let i=0;i<presentCount;i++){
+        html += `<div class="card" style="width:45vw;"><div class='card-header'><div class="row"><div class="col"><b>${results_object[i].author}</b></div> <div class="col" align="right">${results_object[i].rate}⭐️</div></div></div>`+
+      `<div class='card-body'>${results_object[i].review}</div></div>`
+    }
+    html += `<p style="text-align:center;height:20px;"><button class='btn btn-primary ratethis' onClick="loadMore()">Load More</button><button style="margin-left:10px;" class='btn btn-danger ratethis' onClick="collapse()">Collapse</button></p>`;
+    contentReviews = html;
+    $("#cardgroup").html(contentReviews);
+  }
+  else{
+    presentCount = results.length;
+    var html = ``;
+    results_object = results;
+    for(let i=0;i<presentCount;i++){
+        html += `<div class="card" style="width:45vw;"><div class='card-header'><div class="row"><div class="col"><b>${results_object[i].author}</b></div> <div class="col" align="right">${results_object[i].rate}⭐️</div></div></div>`+
+      `<div class='card-body'>${results_object[i].review}</div></div>`
+    }
+    html += `<p style="text-align:center;height:20px;"><button class='btn btn-danger ratethis' onClick="collapse()">Collapse</button></p>`;
+    contentReviews = html;
+    $("#cardgroup").html(contentReviews);
+  }
+  buildReviews(results);
+}
+
+function collapse(){
+  presentCount = 5;
+  var html = ``;
+  results_object = results;
+  for(let i=0;i<presentCount;i++){
+      html += `<div class="card" style="width:45vw;"><div class='card-header'><div class="row"><div class="col"><b>${results_object[i].author}</b></div> <div class="col" align="right">${results_object[i].rate}⭐️</div></div></div>`+
+    `<div class='card-body'>${results_object[i].review}</div></div>`
+  }
+  if(results.length > 5)
+  html += `<p style="text-align:center;height:20px;"><button class='btn btn-primary ratethis' onClick="loadMore()">Load More</button></p>`;
+  contentReviews = html;
+  $("#cardgroup").html(contentReviews);
+}
+
+function buildReviews(results_object) {
+  results = results_object;
+  var html = ``;
+  for(let i=0;i<presentCount;i++){
+        html += `<div class="card" style="width:45vw;"><div class='card-header'><div class="row"><div class="col"><b>${results_object[i].author}</b></div> <div class="col" align="right">${results_object[i].rate}⭐️</div></div></div>`+
+      `<div class='card-body'>${results_object[i].review}</div></div>`
+  }
+  html += `<p style="text-align:center;height:20px;"><button class='btn btn-primary ratethis' onClick="loadMore()">Load More</button></p>`;
+  contentReviews = html;
+}
+
 function fetchRatings(){
     const ratingsUrl = "https://backend.scrapshut.com/company/post/?search="+localStorage.company_name.split(" ")[0]
     $.ajax({
@@ -107,7 +170,9 @@ function fetchRatings(){
         contentType: 'application/json',
         url: ratingsUrl,
         data: {},
-        success: function (data) {
+        timeout:5000,
+        success: function (data,textStatus, xhr) {
+            console.log(xhr.status);
             const object = data
             // const current_url = location.href
             // const current_url = "https://blog.iiit.com/?p=198"
@@ -144,9 +209,9 @@ function fetchRatings(){
             else
             html += `${cnt} ratings<br/><br/>`
             if(localStorage.access_token)
-            html += `<button class="btn-primary ratethis" onclick="openratepopup()">Rate this</button></div>`
+            html += `<button class="btn btn-primary ratethis" onclick="openratepopup()">Rate this</button></div>`
             else
-            html += `<button class="btn-primary ratethis" onclick="openpopup()">Signup to review</button></div>`
+            html += `<button class="btn btn-primary ratethis" onclick="openpopup()">Signup to review</button></div>`
             html += `<p>
             <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" id="mod" style="display:none;">
               Button with data-target
@@ -193,17 +258,27 @@ function fetchRatings(){
             html +=`</div><br/><div class='container review' onclick="showhide()"><b>REVIEWS &#8595;</b></div><br/><div id="cardgroup">`
             else
             html +=`</div><br/><div class='container review'><b>Be the first person to review</b></div><br/><div id="cardgroup">`
-            for(let i=0;i<results_object.length;i++){
-                html += `<div class="card" style="width:45vw;"><div class='card-header'><div class="row"><div class="col"><b>${results_object[i].author}</b></div> <div class="col" align="right">${results_object[i].rate}⭐️</div></div></div>`+
-                `<div class='card-body'>${results_object[i].review}</div></div>`
+            if(results_object.length > 0 && results_object.length < 5){
+              for(let i=0;i<results_object.length;i++){
+                  html += `<div class="card" style="width:45vw;"><div class='card-header'><div class="row"><div class="col"><b>${results_object[i].author}</b></div> <div class="col" align="right">${results_object[i].rate}⭐️</div></div></div>`+
+                  `<div class='card-body'>${results_object[i].review}</div></div>`
+              }
+            }
+            else{
+              buildReviews(results_object);
+              html += contentReviews;
             }
             html += `</div>`
             $("#result").html(html)
             $("#cardgroup").hide()
         },
-        error: function(data)
+        error: function(xhr,textStatus)
         {
-            console.log(data)
+            console.log(xhr)
+            console.log(textStatus)
+            if(textStatus==="timeout" || xhr.status == 408 || xhr.status == 0) {
+                fetch();
+            } 
         }
     });
 }
