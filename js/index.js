@@ -301,7 +301,7 @@ function fetchRatings(){
 }
 
 function openpopup(){
-    popup = window.open("http://127.0.0.1:5501/google.html", location.href, "width=500,height=400");
+    popup = window.open("https://cardforhosting.web.app/", location.href, "width=500,height=400");
     popup.focus();
 }
 
