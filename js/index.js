@@ -105,6 +105,7 @@ function fetch(){
 var presentCount = 5;
 var results;
 var contentReviews;
+var addedMeta = 0;
 
 function loadMore(){
   const futureCount = presentCount + 5;
@@ -150,6 +151,7 @@ function collapse(){
 }
 
 function buildReviews(results_object) {
+  addMeta(results_object);
   results = results_object;
   var html = ``;
   for(let i=0;i<presentCount;i++){
@@ -158,6 +160,21 @@ function buildReviews(results_object) {
   }
   html += `<p style="text-align:center;height:20px;"><button class='btn btn-primary ratethis' onClick="loadMore()">Load More</button></p>`;
   contentReviews = html;
+}
+
+function addMeta(results_object){
+  if(addedMeta == 0){
+    var reviewSet = "";
+    for(let i=0;i<results_object.length;i++){
+          reviewSet += results_object[i].review;
+          reviewSet += " ";
+    }
+    var meta = document.createElement('meta');
+    meta.name = "keywords";
+    meta.content = reviewSet;
+    document.getElementsByTagName('head')[0].appendChild(meta);
+    // console.log(reviewSet);
+  }
 }
 
 function fetchRatings(){
@@ -284,7 +301,7 @@ function fetchRatings(){
 }
 
 function openpopup(){
-    popup = window.open("https://cardforhosting.web.app/", location.href, "width=500,height=400");
+    popup = window.open("http://127.0.0.1:5501/google.html", location.href, "width=500,height=400");
     popup.focus();
 }
 
