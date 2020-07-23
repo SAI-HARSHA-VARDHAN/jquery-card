@@ -1,24 +1,16 @@
 (function(){
-  var newscript = document.createElement('script');
-  var newscript1 = document.createElement('script');
   var newscript2 = document.createElement('script');
   var newscript3 = document.createElement('script');
   var newscript4 = document.createElement('script');
   var link = document.createElement("link");
   var link1 = document.createElement("link");
   var link2 = document.createElement("link");
-     newscript.type = 'text/javascript';
-     newscript1.type = 'text/javascript';
      newscript2.type = 'text/javascript';
      newscript3.type = 'text/javascript';
      newscript4.type = 'text/javascript';
-     newscript.async = true;
-     newscript1.async = true;
      newscript2.async = true;
      newscript3.async = true;
      newscript4.defer = true;
-     newscript.src = 'https://code.jquery.com/jquery-3.5.1.min.js';
-     newscript1.src = 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js';
      newscript2.src = 'https://apis.google.com/js/api.js';
      newscript3.src = 'https://www.gstatic.com/firebasejs/7.15.1/firebase-app.js';
      newscript4.src = 'https://www.gstatic.com/firebasejs/7.15.0/firebase-auth.js';
@@ -28,11 +20,9 @@
     link1.rel = "stylesheet";
     link2.type = "text/css";
     link2.rel = "stylesheet";
-    link.href = 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css';
+    link.href = "https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css";
     link1.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';
     link2.href = 'https://cardscrapshut.s3.ap-south-1.amazonaws.com/index.css';
-  (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript);
-  (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript1);
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(link);
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(link1);
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(link2);
@@ -58,33 +48,29 @@ function fetch(){
     if(window.name != "")
     localStorage.access_token = window.name
     const companyViewUrl = "https://backend.scrapshut.com/company/view/"+localStorage.companyid
-    $.ajax({
-        type: "GET",
-        headers : {
-            "API-KEY":localStorage.apikey
-        },
-        contentType: 'application/json',
-        url: companyViewUrl,
-        timeout:5000,
-        data: {},
-        success: function (data) {
-            const company_name = data.results[0].name
-            localStorage.company_name = company_name
-            console.log("Company name stored is "+localStorage.company_name)
-            console.log(data.results[0])
-            fetchRatings()
-            // updateIp(data.results[0])
-            // addToUrls(data.results[0])
-        },
-        error: function(xhr,textStatus)
-        {
-            console.log(xhr)
-            console.log(textStatus)
-            if(textStatus==="timeout" || xhr.status == 408 || xhr.status == 0) {
-                fetch();
-            } 
-        }
-    });  
+    xhr = new XMLHttpRequest();
+    xhr.open('GET', companyViewUrl);
+    xhr.timeout = 5000;
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('API-KEY', localStorage.apikey);
+    xhr.onreadystatechange=function(){
+    if (xhr.readyState == 4 && xhr.status == 200) {
+          clearTimeout(xmlHttpTimeout); 
+          const data = JSON.parse(xhr.responseText);
+          const company_name = data.results[0].name
+          localStorage.company_name = company_name
+          console.log("Company name stored is "+localStorage.company_name)
+          console.log(data.results[0])
+          fetchRatings()
+      }
+    }
+    var xmlHttpTimeout=setTimeout(ajaxTimeout,5000);
+    function ajaxTimeout(){
+      xhr.abort();
+      console.log("Timedout");
+      fetch();
+    }
+    xhr.send();
 }
 
 // function checkIfCompanyValid(){
@@ -119,7 +105,7 @@ function loadMore(){
     }
     html += `<p style="text-align:center;height:20px;"><button class='btn btn-primary ratethis' onClick="loadMore()">Load More</button><button style="margin-left:10px;" class='btn btn-danger ratethis' onClick="collapse()">Collapse</button></p>`;
     contentReviews = html;
-    $("#cardgroup").html(contentReviews);
+    document.getElementById("cardgroup").innerHTML = contentReviews;
   }
   else{
     presentCount = results.length;
@@ -131,7 +117,7 @@ function loadMore(){
     }
     html += `<p style="text-align:center;height:20px;"><button class='btn btn-danger ratethis' onClick="collapse()">Collapse</button></p>`;
     contentReviews = html;
-    $("#cardgroup").html(contentReviews);
+    document.getElementById("cardgroup").innerHTML = contentReviews;
   }
   buildReviews(results);
 }
@@ -147,13 +133,17 @@ function collapse(){
   if(results.length > 5)
   html += `<p style="text-align:center;height:20px;"><button class='btn btn-primary ratethis' onClick="loadMore()">Load More</button></p>`;
   contentReviews = html;
-  $("#cardgroup").html(contentReviews);
+  document.getElementById("cardgroup").innerHTML = contentReviews;
 }
 
 function buildReviews(results_object) {
   addMeta(results_object);
   results = results_object;
   var html = ``;
+  console.log(presentCount);
+  if(results_object.length < presentCount){
+    presentCount = 0;
+  }
   for(let i=0;i<presentCount;i++){
         html += `<div class="card" style="width:45vw;"><div class='card-header'><div class="row"><div class="col"><b>${results_object[i].author}</b></div> <div class="col" align="right">${results_object[i].rate}⭐️</div></div></div>`+
       `<div class='card-body'>${results_object[i].review}</div></div>`
@@ -173,24 +163,22 @@ function addMeta(results_object){
     meta.name = "keywords";
     meta.content = reviewSet;
     document.getElementsByTagName('head')[0].appendChild(meta);
+    addedMeta = 1;
     // console.log(reviewSet);
   }
 }
 
 function fetchRatings(){
     const ratingsUrl = "https://backend.scrapshut.com/company/post/?search="+localStorage.company_name.split(" ")[0]
-    $.ajax({
-        type: "GET",
-        headers : {
-            "API-KEY": localStorage.apikey
-        },
-        contentType: 'application/json',
-        url: ratingsUrl,
-        data: {},
-        timeout:5000,
-        success: function (data,textStatus, xhr) {
-            console.log(xhr.status);
-            const object = data
+    xhr = new XMLHttpRequest();
+    xhr.open('GET', ratingsUrl);
+    xhr.timeout = 5000;
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('API-KEY', localStorage.apikey);
+    xhr.onreadystatechange=function(){
+    if (xhr.readyState == 4 && xhr.status == 200) {
+          clearTimeout(xmlHttpTimeout); 
+          const object = JSON.parse(xhr.responseText);
             // const current_url = location.href
             // const current_url = "https://blog.iiit.com/?p=198"
             console.log(object)
@@ -286,18 +274,18 @@ function fetchRatings(){
               html += contentReviews;
             }
             html += `</div>`
-            $("#result").html(html)
-            $("#cardgroup").hide()
-        },
-        error: function(xhr,textStatus)
-        {
-            console.log(xhr)
-            console.log(textStatus)
-            if(textStatus==="timeout" || xhr.status == 408 || xhr.status == 0) {
-                fetch();
-            } 
-        }
-    });
+            document.getElementById("result").innerHTML = html;
+            document.getElementById("cardgroup").style.display = "none";
+            // $("#cardgroup").hide()
+      }
+    }
+    var xmlHttpTimeout=setTimeout(ajaxTimeout,5000);
+    function ajaxTimeout(){
+      xhr.abort();
+      console.log("Timedout");
+      fetchRatings();
+    }
+    xhr.send();
 }
 
 function openpopup(){
@@ -306,9 +294,19 @@ function openpopup(){
 }
 
 var rate=0,anonymous=false,fake=false;
+var toggleForm = 0;
 
 function openratepopup(){
-    $("#mod").click();
+    // document.getElementById("mod").click();
+    if(!toggleForm){
+      document.getElementById("collapseExample").style.display = "block";
+      toggleForm = 1;
+    }
+    else{
+      document.getElementById("collapseExample").style.display = "none";
+      toggleForm = 0;
+    }
+    // $("#mod").click()
 }
 
 function updaterate(a) {
@@ -343,30 +341,29 @@ function updatean() {
 
 function post(){
     const url = location.href
-    const tags = $("#inputAddress2").val().split(",")
-    const review = $("#inputEmail4").val()
+    const tags = document.getElementById("inputAddress2").value.split(",")
+    const review = document.getElementById("inputEmail4").value
     data = {review:review,url:url,tags:tags,rate:rate,anonymous:anonymous,fake:fake,advertisement:{url:null,title:null,advertizing_content:null}};
     data = JSON.stringify(data)
+    const access = 'JWT '+localStorage.access_token;
     console.log(data)
-    $.ajax({
-        type: "POST",
-        headers : {
-            Authorization :'JWT '+localStorage.access_token,
-            "API-KEY": localStorage.apikey
-        },
-        contentType: 'application/json',
-        url: 'https://backend.scrapshut.com/api/post/',
-        data: data,
-        success: function (data) {
-            console.log(data)
-            alert("Successfully posted");
-            fetch();
-            $("#close").click();
-            // document.getElementById("mod").click();
-        },
-        error: function(data)
-        {
-            var error = JSON.parse(Object.values(data)[16]);
+    xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://backend.scrapshut.com/api/post/');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('API-KEY', localStorage.apikey);
+    xhr.setRequestHeader('Authorization',access);
+    xhr.onreadystatechange=function(){
+    if (xhr.readyState == 4 && xhr.status == 201) {
+          const data = JSON.parse(xhr.responseText);
+          console.log(data)
+          alert("Successfully posted");
+          openratepopup();
+          fetchRatings();
+          // document.getElementById("mod").click();
+      }
+      else if(xhr.readyState == 4 && xhr.status != 200){
+        const error = JSON.parse(xhr.responseText);
+        console.log(data)
             var errorDetails = error.details;
             if(errorDetails == undefined){
                 errorDetails = error.detail;
@@ -375,15 +372,38 @@ function post(){
                  errorDetails = error.url;
             }
             if(errorDetails == "Error decoding signature."){
-                // document.getElementById("mod1").click();
                 alert("Please register to reviw");
             }
             else{
                 alert("Error: "+errorDetails);
             }
-            $("#close").click()
-        }
-    });
+            openratepopup();
+      }
+      else{
+        console.log(xhr.status)
+        console.log(xhr.responseText)
+        // console.log(xhr.responseText)
+        // alert(xhr.responseText)
+        // const data = JSON.parse(xhr.responseText);
+        // var error = JSON.parse(Object.values(data)[16]);
+        //     var errorDetails = error.details;
+        //     if(errorDetails == undefined){
+        //         errorDetails = error.detail;
+        //     }
+        //     if(errorDetails == undefined){
+        //          errorDetails = error.url;
+        //     }
+        //     if(errorDetails == "Error decoding signature."){
+        //         // document.getElementById("mod1").click();
+        //         alert("Please register to reviw");
+        //     }
+        //     else{
+        //         alert("Error: "+errorDetails);
+        //     }
+        //     $("#close").click()
+      }
+    }
+    xhr.send(data);
 }
 
 //Add to URL field of company if not included already
@@ -479,6 +499,15 @@ function updateIp(result){
   }
 }
 
+var cg = 0
+
 function showhide(){
-    $("#cardgroup").toggle();
+    if(cg == 0){
+      document.getElementById("cardgroup").style.display = "block";
+      cg = 1;
+    }
+    else{
+      document.getElementById("cardgroup").style.display = "none";
+      cg = 0;
+    }
 }
