@@ -2,7 +2,6 @@
   var newscript2 = document.createElement('script');
   var newscript3 = document.createElement('script');
   var newscript4 = document.createElement('script');
-  var link = document.createElement("link");
   var link1 = document.createElement("link");
   var link2 = document.createElement("link");
      newscript2.type = 'text/javascript';
@@ -14,16 +13,12 @@
      newscript2.src = 'https://apis.google.com/js/api.js';
      newscript3.src = 'https://www.gstatic.com/firebasejs/7.15.1/firebase-app.js';
      newscript4.src = 'https://www.gstatic.com/firebasejs/7.15.0/firebase-auth.js';
-    link.type = "text/css";
-    link.rel = "stylesheet";
     link1.type = "text/css";
     link1.rel = "stylesheet";
     link2.type = "text/css";
     link2.rel = "stylesheet";
-    link.href = "https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css";
     link1.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';
-    link2.href = 'https://cardscrapshut.s3.ap-south-1.amazonaws.com/index.css';
-  (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(link);
+    // link2.href = 'https://cardscrapshut.s3.ap-south-1.amazonaws.com/index.css';
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(link1);
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(link2);
   (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript2);
@@ -100,7 +95,7 @@ function loadMore(){
     var html = ``;
     results_object = results;
     for(let i=0;i<presentCount;i++){
-        html += `<div class="card" style="width:45vw;"><div class='card-header'><div class="row"><div class="col"><b>${results_object[i].author}</b></div> <div class="col" align="right">${results_object[i].rate}⭐️</div></div></div>`+
+        html += `<div class="card" style="width:45vw;"><div class='card-header'><p style="text-align:left;"><b>${results_object[i].author}</b><span style="float:right;">${results_object[i].rate}⭐️</span></p></div>`+
       `<div class='card-body'>${results_object[i].review}</div></div>`
     }
     html += `<p style="text-align:center;height:20px;"><button class='btn btn-primary ratethis' onClick="loadMore()">Load More</button><button style="margin-left:10px;" class='btn btn-danger ratethis' onClick="collapse()">Collapse</button></p>`;
@@ -112,7 +107,7 @@ function loadMore(){
     var html = ``;
     results_object = results;
     for(let i=0;i<presentCount;i++){
-        html += `<div class="card" style="width:45vw;"><div class='card-header'><div class="row"><div class="col"><b>${results_object[i].author}</b></div> <div class="col" align="right">${results_object[i].rate}⭐️</div></div></div>`+
+        html += `<div class="card" style="width:45vw;"><div class='card-header'><p style="text-align:left;"><b>${results_object[i].author}</b><span style="float:right;">${results_object[i].rate}⭐️</span></p></div>`+
       `<div class='card-body'>${results_object[i].review}</div></div>`
     }
     html += `<p style="text-align:center;height:20px;"><button class='btn btn-danger ratethis' onClick="collapse()">Collapse</button></p>`;
@@ -127,7 +122,7 @@ function collapse(){
   var html = ``;
   results_object = results;
   for(let i=0;i<presentCount;i++){
-      html += `<div class="card" style="width:45vw;"><div class='card-header'><div class="row"><div class="col"><b>${results_object[i].author}</b></div> <div class="col" align="right">${results_object[i].rate}⭐️</div></div></div>`+
+        html += `<div class="card" style="width:45vw;"><div class='card-header'><p style="text-align:left;"><b>${results_object[i].author}</b><span style="float:right;">${results_object[i].rate}⭐️</span></p></div>`+
     `<div class='card-body'>${results_object[i].review}</div></div>`
   }
   if(results.length > 5)
@@ -145,7 +140,7 @@ function buildReviews(results_object) {
     presentCount = 0;
   }
   for(let i=0;i<presentCount;i++){
-        html += `<div class="card" style="width:45vw;"><div class='card-header'><div class="row"><div class="col"><b>${results_object[i].author}</b></div> <div class="col" align="right">${results_object[i].rate}⭐️</div></div></div>`+
+        html += `<div class="card" style="width:45vw;"><div class='card-header'><p style="text-align:left;"><b>${results_object[i].author}</b><span style="float:right;">${results_object[i].rate}⭐️</span></p></div>`+
       `<div class='card-body'>${results_object[i].review}</div></div>`
   }
   html += `<p style="text-align:center;height:20px;"><button class='btn btn-primary ratethis' onClick="loadMore()">Load More</button></p>`;
@@ -197,8 +192,8 @@ function fetchRatings(){
             roundedAvg = Math.round(avgrating)
             var html = ``;
             html += `<div class="row insidecontainer" style="width:50vw;">`+
-            `<div class="col-4" align="center"><img src="https://scrapshut.s3.ap-south-1.amazonaws.com/scrapshut.gif" height="150px" width="150px"></div>`+
-            `<div class="col-8"><h3 class='company'>${localStorage.company_name}</h3>`
+            `<div class="col-4 imgcol" align="center"><img src="https://scrapshut.s3.ap-south-1.amazonaws.com/scrapshut.gif" height="150px" width="150px" id="scrapImg"></div>`+
+            `<div class="col-8 contentcol"><h3 class='company' style="margin:0;">${localStorage.company_name.toUpperCase()}</h3>`
             for(let j=0;j<roundedAvg;j++){
                 html += `<span class='star' style='color:gold;'>★</span>`
             }
@@ -222,9 +217,9 @@ function fetchRatings(){
               Button with data-target
             </button>
           </p>
-          <div class="collapse" id="collapseExample" style="width:100%;">
+          <div class="collapse" id="collapseExample" style="width:100%;display:none;">
             <br/>
-            <div class="card card-body">
+            <div class="card formdiv card-body">
               <form id="formId">
           <p>Review</p>
           <input name="review" type="text" id="inputEmail4" placeholder="Title" style="margin-bottom:20px;margin-top:-15px;width:100%;border:1px solid #C1C3C2;padding:5px;border-radius:5px;" required>
@@ -255,7 +250,7 @@ function fetchRatings(){
           <br/>
           <input name="fake" type="checkbox" id="gridCheck2" onclick="updatefk()"> &nbspMight be Fake 
           <br/><br/>
-      <p style="text-align:center;"><button type="button" class="btn btn-primary" onclick="post()">Submit</button></p>
+      <p style="text-align:center;"><button type="button" class="btn btn-primary" style="border:none;" onclick="post()">Submit</button></p>
     </form>
             </div>
           </div>`
@@ -265,8 +260,8 @@ function fetchRatings(){
             html +=`</div><br/><div class='container review'><b>Be the first person to review</b></div><br/><div id="cardgroup">`
             if(results_object.length > 0 && results_object.length < 5){
               for(let i=0;i<results_object.length;i++){
-                  html += `<div class="card" style="width:45vw;"><div class='card-header'><div class="row"><div class="col"><b>${results_object[i].author}</b></div> <div class="col" align="right">${results_object[i].rate}⭐️</div></div></div>`+
-                  `<div class='card-body'>${results_object[i].review}</div></div>`
+        html += `<div class="card" style="width:45vw;"><div class='card-header'><p style="text-align:left;"><b>${results_object[i].author}</b><span style="float:right;">${results_object[i].rate}⭐️</span></p></div>`+
+                  `<div class='card-body'>${results_object[i].review}</div>`
               }
             }
             else{
